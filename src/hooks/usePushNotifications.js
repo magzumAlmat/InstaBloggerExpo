@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import * as Notifications from 'expo-notifications';
+// import * as Notifications from 'expo-notifications'; // Commented out to prevent crash if not installed
 import { Platform } from 'react-native';
 import api from '../api/client';
 
@@ -7,6 +7,8 @@ export const usePushNotifications = (user) => {
   useEffect(() => {
     if (!user) return;
 
+    console.log('Push Notifications Hook: Active (Mock Mode)');
+    /* 
     registerForPushNotificationsAsync().then(token => {
       if (token) {
         api.post('/auth/push-token', { token }).catch(e => console.error('Failed to save push token:', e));
@@ -25,32 +27,11 @@ export const usePushNotifications = (user) => {
       subscription.remove();
       responseSubscription.remove();
     };
+    */
   }, [user]);
 };
 
 async function registerForPushNotificationsAsync() {
-  let token;
-  try {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') return null;
-
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-    
-    if (Platform.OS === 'android') {
-      Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-  } catch (e) {
-    console.warn('Push notification registration failed (likely dev environment):', e);
-  }
-  return token;
+  console.log('Please run "npx expo install expo-notifications" to enable real push tokens.');
+  return null;
 }
