@@ -5,7 +5,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import api from '../../src/api/client';
 import * as Haptics from 'expo-haptics';
-import { Heart, X, Star, Instagram, Users, Activity, Eye, ChevronRight } from 'lucide-react-native';
+import { Handshake, X, Star, Instagram, Users, Activity, Eye, ChevronRight } from 'lucide-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -148,6 +148,11 @@ export default function DiscoverScreen() {
             <BloggerCard blogger={stack[1]} />
           </View>
         )}
+        <Animated.View style={[{ position: 'absolute', top: 50, right: 40, opacity: likeOpacity, transform: [{ rotate: '15deg' }], zIndex: 10 }]}>
+          <View style={{ borderWidth: 4, borderColor: '#34D399', borderRadius: 12, padding: 8 }}>
+            <Text style={{ color: '#34D399', fontSize: 32, fontWeight: '800', textTransform: 'uppercase' }}>MATCH</Text>
+          </View>
+        </Animated.View>
         <View style={{ flex: 1 }}>
           <BloggerCard blogger={current} />
         </View>
@@ -173,7 +178,7 @@ export default function DiscoverScreen() {
             borderWidth: 1.5, borderColor: 'rgba(52,211,153,0.4)',
           })}
         >
-          <Heart size={30} color="#34D399" />
+          <Handshake size={30} color="#34D399" />
         </Pressable>
       </View>
     </View>
