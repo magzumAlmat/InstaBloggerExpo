@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Alert, Dimensions, Animated } from 'react-native';
+import { View, Text, Pressable, Dimensions, ActivityIndicator, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -82,13 +82,27 @@ function BloggerCard({ blogger }) {
 }
 
 export default function DiscoverScreen() {
+  const CATEGORIES = [
+    { id: 'ALL', label: 'Все' },
+    { id: 'FASHION', label: 'Мода' },
+    { id: 'FOOD', label: 'Еда' },
+    { id: 'TECH', label: 'Техно' },
+    { id: 'BEAUTY', label: 'Красота' },
+    { id: 'FITNESS', label: 'Фитнес' },
+    { id: 'TRAVEL', label: 'Путеш.' },
+    { id: 'GAMING', label: 'Игры' },
+    { id: 'LIFESTYLE', label: 'Лайфстайл' }
+  ];
+
   const [stack, setStack] = useState([]);
   const [loading, setLoading] = useState(true);
   const [swiping, setSwiping] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('ALL');
 
-  const fetchStack = async () => {
+  const fetchStack = async (category = activeCategory) => {
     try {
-      const res = await api.get('/discovery/bloggers');
+      setLoading(true);
+      const res = await api.get(`/discovery/bloggers?category=${category}`);
       setStack(res.data);
     } catch (e) {
       console.error(e);
@@ -97,7 +111,12 @@ export default function DiscoverScreen() {
     }
   };
 
-  useFocusEffect(useCallback(() => { setLoading(true); fetchStack(); }, []));
+  useFocusEffect(useCallback(() => { fetchStack(activeCategory); }, []));
+
+  const handleCategoryPress = (catId) => {
+    setActiveCategory(catId);
+    fetchStack(catId);
+  };
 
   const swipe = async (direction) => {
     if (stack.length === 0 || swiping) return;
@@ -114,21 +133,53 @@ export default function DiscoverScreen() {
     }
   };
 
+  const FilterUI = () => (
+    <View style={{ marginBottom: 16 }}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}>
+        {CATEGORIES.map(cat => (
+          <Pressable
+            key={cat.id}
+            onPress={() => handleCategoryPress(cat.id)}
+            style={{
+              paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+              backgroundColor: activeCategory === cat.id ? 'rgba(96,165,250,0.35)' : 'rgba(255,255,255,0.07)',
+              borderWidth: 1, borderColor: activeCategory === cat.id ? 'rgba(96,165,250,0.6)' : 'rgba(255,255,255,0.1)'
+            }}
+          >
+            <Text style={{ color: activeCategory === cat.id ? '#60A5FA' : 'rgba(255,255,255,0.5)', fontWeight: '700', fontSize: 13 }}>
+              {cat.label}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
   if (loading) {
-    return <View style={{ flex: 1, backgroundColor: '#0A061E', alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#60A5FA" size="large" /></View>;
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0A061E', paddingTop: 100 }}>
+        <FilterUI />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color="#60A5FA" size="large" />
+        </View>
+      </View>
+    );
   }
 
   if (stack.length === 0) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0A061E', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-        <Text style={{ fontSize: 56 }}>🎉</Text>
-        <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center', marginTop: 20 }}>Больше никого!</Text>
-        <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 8, lineHeight: 22 }}>
-          Вы просмотрели всех доступных блогеров. Заходите позже.
-        </Text>
-        <Pressable onPress={() => { setLoading(true); fetchStack(); }} style={{ marginTop: 24, backgroundColor: 'rgba(96,165,250,0.25)', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(96,165,250,0.4)' }}>
-          <Text style={{ color: '#60A5FA', fontWeight: '700', fontSize: 15 }}>Обновить →</Text>
-        </Pressable>
+      <View style={{ flex: 1, backgroundColor: '#0A061E', paddingTop: 100 }}>
+        <FilterUI />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <Text style={{ fontSize: 56 }}>🎉</Text>
+          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center', marginTop: 20 }}>Больше никого!</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 8, lineHeight: 22 }}>
+            Вы просмотрели всех доступных блогеров в этой категории. Заходите позже.
+          </Text>
+          <Pressable onPress={() => fetchStack(activeCategory)} style={{ marginTop: 24, backgroundColor: 'rgba(96,165,250,0.25)', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(96,165,250,0.4)' }}>
+            <Text style={{ color: '#60A5FA', fontWeight: '700', fontSize: 15 }}>Обновить →</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }
@@ -136,13 +187,15 @@ export default function DiscoverScreen() {
   const current = stack[0];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0A061E', paddingTop: 100, paddingBottom: 120, paddingHorizontal: 20 }}>
-      <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginBottom: 16 }}>
+    <View style={{ flex: 1, backgroundColor: '#0A061E', paddingTop: 100, paddingBottom: 120 }}>
+      <FilterUI />
+      
+      <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginBottom: 16, paddingHorizontal: 20 }}>
         {stack.length} блогеров для просмотра
       </Text>
-
+      
       {/* Card Stack */}
-      <View style={{ flex: 1, position: 'relative' }}>
+      <View style={{ flex: 1, position: 'relative', paddingHorizontal: 20 }}>
         {stack[1] && (
           <View style={{ position: 'absolute', top: 8, left: 8, right: 8, bottom: 0, borderRadius: 32, overflow: 'hidden', opacity: 0.5, transform: [{ scale: 0.95 }] }}>
             <BloggerCard blogger={stack[1]} />
