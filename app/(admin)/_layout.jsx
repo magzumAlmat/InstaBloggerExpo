@@ -1,9 +1,12 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
-import { Search, Bell, MessageCircle, PlusCircle, User } from 'lucide-react-native';
+import { BarChart3, Users, Settings, LogOut } from 'lucide-react-native';
+import { useAuth } from '../../src/context/AuthContext';
 
-export default function BrandLayout() {
+export default function AdminLayout() {
+  const { logout } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -28,43 +31,33 @@ export default function BrandLayout() {
       }}
     >
       <Tabs.Screen
-        name="discover"
+        name="dashboard"
         options={{
-          title: 'Поиск блогеров',
-          tabBarLabel: 'Поиск',
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+          title: 'Статистика',
+          tabBarLabel: 'Аналитика',
+          tabBarIcon: ({ color, size }) => <BarChart3 size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="notifications"
+        name="users"
         options={{
-          title: 'Запросы',
-          tabBarLabel: 'Запросы',
-          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          title: 'Пользователи',
+          tabBarLabel: 'База',
+          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="connections"
+        name="settings"
         options={{
-          title: 'Партнеры',
-          tabBarLabel: 'Чат',
-          tabBarIcon: ({ color, size }) => <MessageCircle size={size} color={color} />,
+          title: 'Настройки',
+          tabBarLabel: 'Выход',
+          tabBarIcon: ({ color, size }) => <LogOut size={size} color={color} />,
         }}
-      />
-      <Tabs.Screen
-        name="create-offer"
-        options={{
-          title: 'Добавить',
-          tabBarLabel: 'Оффер',
-          tabBarIcon: ({ color, size }) => <PlusCircle size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Профиль',
-          tabBarLabel: 'Профиль',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            logout();
+          },
         }}
       />
     </Tabs>

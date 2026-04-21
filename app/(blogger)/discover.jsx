@@ -1,87 +1,70 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, Pressable, Dimensions, ActivityIndicator, ScrollView, Animated } from 'react-native';
+import { View, Text, Pressable, Dimensions, ActivityIndicator, ScrollView } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import api from '../../src/api/client';
 import * as Haptics from 'expo-haptics';
-import { Handshake, X, Star, Instagram, Users, Activity, Eye, ChevronRight } from 'lucide-react-native';
+import { Handshake, X, Star, Briefcase } from 'lucide-react-native';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-function BloggerCard({ blogger }) {
+function BrandCard({ brand }) {
   const router = useRouter();
-  const hasPortfolio = blogger.portfolio?.length > 0;
-  const firstMedia = hasPortfolio ? blogger.portfolio[0] : null;
 
   return (
     <View style={{ flex: 1, borderRadius: 32, overflow: 'hidden', backgroundColor: '#1A1030' }}>
-      {firstMedia?.media_url ? (
-        <Image source={{ uri: `http://172.20.10.7:3000${firstMedia.media_url}` }} style={{ position: 'absolute', width: '100%', height: '100%' }} contentFit="cover" />
+      {brand?.avatar_url && brand.avatar_url !== '/uploads/avatars/default.jpg' ? (
+        <Image source={{ uri: `http://172.20.10.7:3000${brand.avatar_url}` }} style={{ position: 'absolute', width: '100%', height: '100%' }} contentFit="cover" />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#1A1030' }}>
-          <Text style={{ fontSize: 64 }}>📸</Text>
+          <Text style={{ fontSize: 64 }}>🏢</Text>
         </View>
       )}
 
       {/* Glassmorphic overlay */}
-      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%' }}>
-        <BlurView intensity={70} tint="dark" style={{ flex: 1, justifyContent: 'flex-end', padding: 24, gap: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%' }}>
+        <BlurView intensity={80} tint="dark" style={{ flex: 1, justifyContent: 'flex-end', padding: 24, gap: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
           <Text style={{ color: '#fff', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 }}>
-            @{blogger.ig_username}
+            @{brand.ig_username}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 4 }}>
-            {blogger.rating && (
+            {brand.rating && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(251,191,36,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
                 <Star size={14} color="#FBBF24" fill="#FBBF24" />
-                <Text style={{ color: '#FBBF24', fontSize: 13, fontWeight: '700' }}>{blogger.rating}</Text>
+                <Text style={{ color: '#FBBF24', fontSize: 13, fontWeight: '700' }}>{brand.rating}</Text>
               </View>
             )}
-            {blogger.followers_count && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(96,165,250,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-                <Users size={14} color="#60A5FA" />
-                <Text style={{ color: '#60A5FA', fontSize: 13, fontWeight: '700' }}>{blogger.followers_count >= 1000 ? (blogger.followers_count/1000).toFixed(1)+'k' : blogger.followers_count}</Text>
-              </View>
-            )}
-            {blogger.engagement_rate && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(52,211,153,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-                <Activity size={14} color="#34D399" />
-                <Text style={{ color: '#34D399', fontSize: 13, fontWeight: '700' }}>{blogger.engagement_rate}% ER</Text>
-              </View>
-            )}
-            {blogger.reach && (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(167,139,250,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 }}>
-                <Eye size={14} color="#A78BFA" />
-                <Text style={{ color: '#A78BFA', fontSize: 13, fontWeight: '700' }}>~{blogger.reach >= 1000 ? (blogger.reach/1000).toFixed(1)+'k' : blogger.reach} охват</Text>
+            {brand.category && (
+              <View style={{ backgroundColor: 'rgba(96,165,250,0.15)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+                <Text style={{ color: '#60A5FA', fontSize: 12, fontWeight: '700', textTransform: 'uppercase' }}>
+                  {brand.category === 'FASHION' ? 'Мода' : 
+                   brand.category === 'FOOD' ? 'Еда' : 
+                   brand.category === 'TECH' ? 'Техно' : 
+                   brand.category === 'BEAUTY' ? 'Красота' : 
+                   brand.category === 'FITNESS' ? 'Фитнес' : 
+                   brand.category === 'TRAVEL' ? 'Путешествия' : 
+                   brand.category === 'GAMING' ? 'Игры' : 'Лайфстайл'}
+                </Text>
               </View>
             )}
           </View>
-          
-          {hasPortfolio && (
-            <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, marginTop: 12, marginBottom: 4, letterSpacing: 0.5 }}>
-              {blogger.portfolio.length} ПРЕДСТАВЛЕННЫХ ПРОЕКТОВ
-            </Text>
-          )}
+            
+          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, lineHeight: 20, marginTop: 4 }} numberOfLines={3}>
+            {brand.bio || "Бренд еще не добавил описание о себе."}
+          </Text>
 
-          <Pressable 
-            onPress={() => router.push(`/portfolio-modal?id=${blogger.id}`)}
-            style={({ pressed }) => ({
-              flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-              backgroundColor: pressed ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)',
-              paddingVertical: 14, borderRadius: 16, marginTop: 12,
-              borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)'
-            })}
-          >
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: 0.3 }}>Открыть портфолио</Text>
-            <ChevronRight size={16} color="#fff" />
-          </Pressable>
+          <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' }}>
+            <Briefcase size={20} color="rgba(255,255,255,0.4)" />
+            <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: '700', marginTop: 4 }}>Партнерство</Text>
+          </View>
         </BlurView>
       </View>
     </View>
   );
 }
 
-export default function DiscoverScreen() {
+export default function DiscoverBrandScreen() {
   const CATEGORIES = [
     { id: 'ALL', label: 'Все' },
     { id: 'FASHION', label: 'Мода' },
@@ -98,12 +81,11 @@ export default function DiscoverScreen() {
   const [loading, setLoading] = useState(true);
   const [swiping, setSwiping] = useState(false);
   const [activeCategory, setActiveCategory] = useState('ALL');
-  const [likeOpacity] = useState(new Animated.Value(0));
 
   const fetchStack = async (category = activeCategory) => {
     try {
       setLoading(true);
-      const res = await api.get(`/discovery/bloggers?category=${category}`);
+      const res = await api.get(`/discovery/brands?category=${category}`);
       setStack(res.data);
     } catch (e) {
       console.error(e);
@@ -122,10 +104,10 @@ export default function DiscoverScreen() {
   const swipe = async (direction) => {
     if (stack.length === 0 || swiping) return;
     setSwiping(true);
-    const blogger = stack[0];
+    const brand = stack[0];
     Haptics.impactAsync(direction === 'LIKE' ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light);
     try {
-      await api.post('/discovery/swipe', { targetId: blogger.id, direction, role: 'BRAND' });
+      await api.post('/discovery/swipe', { targetId: brand.id, direction, role: 'BLOGGER' });
       setStack(prev => prev.slice(1));
     } catch (e) {
       console.error(e);
@@ -172,10 +154,10 @@ export default function DiscoverScreen() {
       <View style={{ flex: 1, backgroundColor: '#0A061E', paddingTop: 100 }}>
         <FilterUI />
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <Text style={{ fontSize: 56 }}>🎉</Text>
+          <Text style={{ fontSize: 56 }}>🏢</Text>
           <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center', marginTop: 20 }}>Больше никого!</Text>
           <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 15, textAlign: 'center', marginTop: 8, lineHeight: 22 }}>
-            Вы просмотрели всех доступных блогеров в этой категории. Заходите позже.
+            Вы просмотрели все доступные бренды в этой категории. Заходите позже.
           </Text>
           <Pressable onPress={() => fetchStack(activeCategory)} style={{ marginTop: 24, backgroundColor: 'rgba(96,165,250,0.25)', paddingHorizontal: 24, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(96,165,250,0.4)' }}>
             <Text style={{ color: '#60A5FA', fontWeight: '700', fontSize: 15 }}>Обновить →</Text>
@@ -192,23 +174,23 @@ export default function DiscoverScreen() {
       <FilterUI />
       
       <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: '600', textAlign: 'center', marginBottom: 16, paddingHorizontal: 20 }}>
-        {stack.length} блогеров для просмотра
+        {stack.length} брендов для просмотра
       </Text>
       
       {/* Card Stack */}
       <View style={{ flex: 1, position: 'relative', paddingHorizontal: 20 }}>
         {stack[1] && (
-          <View style={{ position: 'absolute', top: 8, left: 8, right: 8, bottom: 0, borderRadius: 32, overflow: 'hidden', opacity: 0.5, transform: [{ scale: 0.95 }] }}>
-            <BloggerCard blogger={stack[1]} />
+          <View style={{ position: 'absolute', top: 8, left: 28, right: 28, bottom: 0, borderRadius: 32, overflow: 'hidden', opacity: 0.5, transform: [{ scale: 0.95 }] }}>
+            <BrandCard brand={stack[1]} />
           </View>
         )}
-        <Animated.View style={[{ position: 'absolute', top: 50, right: 40, opacity: likeOpacity, transform: [{ rotate: '15deg' }], zIndex: 10 }]}>
+        <View style={{ position: 'absolute', top: 50, right: 40, opacity: 0, transform: [{ rotate: '15deg' }], zIndex: 10 }}>
           <View style={{ borderWidth: 4, borderColor: '#34D399', borderRadius: 12, padding: 8 }}>
             <Text style={{ color: '#34D399', fontSize: 32, fontWeight: '800', textTransform: 'uppercase' }}>MATCH</Text>
           </View>
-        </Animated.View>
+        </View>
         <View style={{ flex: 1 }}>
-          <BloggerCard blogger={current} />
+          <BrandCard brand={current} />
         </View>
       </View>
 

@@ -33,7 +33,7 @@ function MessageBubble({ msg, isMe }) {
 }
 
 export default function MessagesScreen() {
-  const { id: dealId } = useLocalSearchParams();
+  const { id: targetId, type } = useLocalSearchParams();
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState('');
@@ -43,14 +43,17 @@ export default function MessagesScreen() {
 
   const fetchMessages = useCallback(async () => {
     try {
-      const res = await api.get(`/messages/${dealId}`);
+      const endpoint = type === 'CONNECTION' 
+        ? `/messages/connection/${targetId}` 
+        : `/messages/deal/${targetId}`;
+      const res = await api.get(endpoint);
       setMessages(res.data);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  }, [dealId]);
+  }, [targetId, type]);
 
   useEffect(() => {
     fetchMessages();
@@ -64,7 +67,11 @@ export default function MessagesScreen() {
     setText('');
     setSending(true);
     try {
-      await api.post(`/messages/${dealId}`, { content });
+      await api.post('/messages', { 
+        targetId, 
+        targetType: type === 'CONNECTION' ? 'CONNECTION' : 'DEAL', 
+        content 
+      });
       fetchMessages();
     } catch (e) {
       console.error(e);

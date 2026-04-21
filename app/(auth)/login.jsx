@@ -22,7 +22,8 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const user = await login(email.trim(), password);
-      if (user.role === 'BLOGGER') router.replace('/(blogger)/offers');
+      if (user.role === 'ADMIN') router.replace('/(admin)/dashboard');
+      else if (user.role === 'BLOGGER') router.replace('/(blogger)/offers');
       else router.replace('/(brand)/discover');
     } catch (e) {
       Alert.alert('Ошибка входа', e.response?.data?.message || 'Проверьте данные и попробуйте снова');

@@ -5,17 +5,23 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { useRouter } from 'expo-router';
 import { View, ActivityIndicator } from 'react-native';
 
+import { usePushNotifications } from '../src/hooks/usePushNotifications';
+
 SplashScreen.preventAutoHideAsync();
 
 function RootNavigation() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  
+  usePushNotifications(user);
 
   useEffect(() => {
     if (!loading) {
       SplashScreen.hideAsync();
       if (!user) {
         router.replace('/(auth)/login');
+      } else if (user.role === 'ADMIN') {
+        router.replace('/(admin)/dashboard');
       } else if (user.role === 'BLOGGER') {
         router.replace('/(blogger)/offers');
       } else if (user.role === 'BRAND') {
@@ -37,6 +43,7 @@ function RootNavigation() {
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(blogger)" />
       <Stack.Screen name="(brand)" />
+      <Stack.Screen name="(admin)" />
       <Stack.Screen
         name="portfolio-modal"
         options={{

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
-import { LayoutGrid, Briefcase, User } from 'lucide-react-native';
+import { LayoutGrid, Briefcase, User, Search, Bell, MessageCircle } from 'lucide-react-native';
 
 export default function BloggerLayout() {
   return (
@@ -28,19 +28,35 @@ export default function BloggerLayout() {
       }}
     >
       <Tabs.Screen
+        name="discover"
+        options={{
+          title: 'Поиск брендов',
+          tabBarLabel: 'Партнеры',
+          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="offers"
         options={{
-          title: 'Предложения',
-          tabBarLabel: 'Офферы',
+          title: 'Биржа офферов',
+          tabBarLabel: 'Биржа',
           tabBarIcon: ({ color, size }) => <LayoutGrid size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="deals"
+        name="notifications"
         options={{
-          title: 'Мои сделки',
-          tabBarLabel: 'Сделки',
-          tabBarIcon: ({ color, size }) => <Briefcase size={size} color={color} />,
+          title: 'Запросы',
+          tabBarLabel: 'Запросы',
+          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="connections"
+        options={{
+          title: 'Контакты',
+          tabBarLabel: 'Чат',
+          tabBarIcon: ({ color, size }) => <MessageCircle size={size} color={color} />,
         }}
       />
       <Tabs.Screen
